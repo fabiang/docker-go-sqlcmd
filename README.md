@@ -1,6 +1,7 @@
-# fabian/sqlcmd
+# fabian/go-sqlcmd
 
-Sqlcmd – command line tool for Microsoft SQL Server.
+Sqlcmd – [Modern command line tool written in Go for Microsoft SQL Server](https://github.com/microsoft/go-sqlcmd).
+[A Docker image for old sqlcmd](https://github.com/fabiang/docker-sqlcmd).
 
 [![fabiang/go-sqlcmd](https://img.shields.io/docker/pulls/fabiang/go-sqlcmd.svg)](https://registry.hub.docker.com/r/fabiang/go-sqlcmd)
 [![fabiang/go-sqlcmd](https://badgen.net/github/license/fabiang/docker-go-sqlcmd)](https://github.com/fabiang/docker-go-sqlcmd)
