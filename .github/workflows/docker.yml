@@ -94,7 +94,9 @@ jobs:
         run: |
           docker run -t --rm --entrypoint='' --network=host \
             '${{ env.IMAGE_NAME_FULL }}' \
-            sqlcmd -b -C -S 127.0.0.1,1433 -U sa -P 'yourStrong(!)Password' -Q 'SELECT @@VERSION'
+            sqlcmd -b -C -S 127.0.0.1,1433 -U sa -Q 'SELECT @@VERSION'
+        env: 
+          SQLCMDPASSWORD: yourStrong(!)Password
 
       - name: Stop SQLServer
         if: always()
@@ -147,7 +149,7 @@ jobs:
           docker push '${{ env.IMAGE_NAME_ALPINE_MAJOR }}'
           docker push '${{ env.IMAGE_LATEST_ALPINE_MAJOR }}'
 
-      - name: Push Lastest
+      - name: Push Latest
         if: "${{ matrix.version.latest == true && github.ref == 'refs/heads/main' }}"
         run: |
           docker push '${{ env.IMAGE_LATEST }}'
