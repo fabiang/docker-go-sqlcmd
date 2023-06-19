@@ -96,7 +96,7 @@ jobs:
             '${{ env.IMAGE_NAME_FULL }}' \
             sqlcmd -b -C -S 127.0.0.1,1433 -U sa -Q 'SELECT @@VERSION'
         env: 
-          SQLCMDPASSWORD: yourStrong(!)Password
+          SQLCMDPASSWORD: 'yourStrong(!)Password'
 
       - name: Stop SQLServer
         if: always()
