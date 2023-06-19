@@ -51,10 +51,6 @@ jobs:
           path: '*.tar'
           key: docker-image-cache-${{ runner.os }}-${{ steps.sqlserver-checksum.outputs.checksum }}
 
-      - name: Load SQLServer image
-        if: steps.docker-image-cache.outputs.cache-hit == 'true'
-        run: docker image load -i sqlserver.tar
-
       - name: Run SQL Server
         run: |
           docker run \
@@ -93,7 +89,7 @@ jobs:
       - name: Test image
         run: |
           docker run -t --rm --entrypoint='' --network=host \
-            -e 'SQLCMDPASSWORD=$SQLCMDPASSWORD' \
+            -e "SQLCMDPASSWORD=$SQLCMDPASSWORD" \
             '${{ env.IMAGE_NAME_FULL }}' \
             sqlcmd -b -C -S 127.0.0.1,1433 -U sa -Q 'SELECT @@VERSION'
         env: 
@@ -102,6 +98,10 @@ jobs:
       - name: Stop SQLServer
         if: always()
         run: docker stop SQLServer
+
+      - name: Load SQLServer image
+        if: steps.docker-image-cache.outputs.cache-hit == 'true'
+        run: docker image load -i sqlserver.tar
 
       - name: Tag Minor
         if: "${{ matrix.version.sqlcmd_minor != '' }}"
