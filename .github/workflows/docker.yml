@@ -16,6 +16,10 @@ jobs:
         version:
           - sqlcmd: "1.1.0"
             sqlcmd_minor: "1.1"
+            sqlcmd_major: ""
+            latest: false
+          - sqlcmd: "1.2.0"
+            sqlcmd_minor: "1.1"
             sqlcmd_major: "1"
             latest: true
 
