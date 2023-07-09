@@ -19,6 +19,10 @@ jobs:
             sqlcmd_major: ""
             latest: false
           - sqlcmd: "1.2.0"
+            sqlcmd_minor: ""
+            sqlcmd_major: ""
+            latest: false
+          - sqlcmd: "1.2.1"
             sqlcmd_minor: "1.2"
             sqlcmd_major: "1"
             latest: true
