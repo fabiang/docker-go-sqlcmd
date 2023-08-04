@@ -17,14 +17,22 @@ jobs:
           - sqlcmd: "1.1.0"
             sqlcmd_minor: "1.1"
             sqlcmd_major: ""
+            sha256: "39a964ffaec8004cb6b8b6cd5abdf46bbbfb2c03bf608bf0988cb8b5e17bf5ce"
             latest: false
           - sqlcmd: "1.2.0"
             sqlcmd_minor: ""
             sqlcmd_major: ""
+            sha256: "39b82d3ac2203039a5c3c706bcf41f81d641d74dd8c8bd494da8abd3e3a5f2e6"
             latest: false
           - sqlcmd: "1.2.1"
             sqlcmd_minor: "1.2"
+            sqlcmd_major: ""
+            sha256: "83b2b004bfdd34801ca8b55b9ccbc014545c9a51d0d8556bc23c4f8b0584b559"
+            latest: false
+          - sqlcmd: "1.3.0"
+            sqlcmd_minor: "1.3"
             sqlcmd_major: "1"
+            sha256: "b184eedad43a2e545c39836c5c800b34a35d7c6e29b3a6027327f9365fdfa32b"
             latest: true
 
     env:
@@ -84,6 +92,7 @@ jobs:
             -t '${{ env.IMAGE_NAME_FULL }}' \
             -t '${{ env.IMAGE_NAME_ALPINE_FULL }}' \
             '--build-arg=GO_SQLCMD_VERSION=${{ matrix.version.sqlcmd }}' \
+            '--build-arg=GO_SQLCMD_SHA256=${{ matrix.version.sha256 }}' \
             .
 
       - name: Wait for SQLServer to become available
