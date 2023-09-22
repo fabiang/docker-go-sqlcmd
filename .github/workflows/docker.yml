@@ -31,8 +31,13 @@ jobs:
             latest: false
           - sqlcmd: "1.3.0"
             sqlcmd_minor: "1.3"
-            sqlcmd_major: "1"
+            sqlcmd_major: ""
             sha256: "b184eedad43a2e545c39836c5c800b34a35d7c6e29b3a6027327f9365fdfa32b"
+            latest: false
+          - sqlcmd: "1.4.0"
+            sqlcmd_minor: "1.4"
+            sqlcmd_major: "1"
+            sha256: "cbb572251ff514ac0cb95693252f29538b0e4031a3b20a20664a75c9e86d7248"
             latest: true
 
     env:
@@ -57,7 +62,7 @@ jobs:
       - name: SQLServer Checksum
         id: sqlserver-checksum
         shell: bash
-        run: | 
+        run: |
           echo "checksum=$(curl --silent -L --header 'Accept: application/vnd.docker.distribution.manifest.v2+json' 'https://mcr.microsoft.com/v2/mssql/server/manifests/2022-latest' | jq -r '.config.digest')" >> $GITHUB_OUTPUT
 
       - name: Cache Docker Image
@@ -109,7 +114,7 @@ jobs:
             -e "SQLCMDPASSWORD=$SQLCMDPASSWORD" \
             '${{ env.IMAGE_NAME_FULL }}' \
             sqlcmd -b -C -S 127.0.0.1,1433 -U sa -Q 'SELECT @@VERSION'
-        env: 
+        env:
           SQLCMDPASSWORD: "yourStrong(!)Password"
 
       - name: Stop SQLServer
