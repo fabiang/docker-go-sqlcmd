@@ -46,8 +46,13 @@ jobs:
             latest: false
           - sqlcmd: "1.6.0"
             sqlcmd_minor: "1.6"
-            sqlcmd_major: "1"
+            sqlcmd_major: ""
             sha256: "f200155b4233fc7d8f632800705bae19eaa338a9c82c3f9d9106cbf3dcb78a8e"
+            latest: false
+          - sqlcmd: "1.7.0"
+            sqlcmd_minor: "1.7"
+            sqlcmd_major: "1"
+            sha256: "a9bf7a99a9e22bf0e59bf282e011f9213455438869c9e1847a1c23a75cda0517"
             latest: true
 
     env:
