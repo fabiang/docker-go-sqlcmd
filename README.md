@@ -9,7 +9,8 @@ Sqlcmd – [Modern command line tool written in Go for Microsoft SQL Server](htt
 
 ## Available tags
 
-* 1.6.0, 1.6.0-alpine, 1.6, 1.6-alpine, 1, 1-alpine, latest, latest-alpine
+* 1.7.0, 1.7.0-alpine, 1.7, 1.7-alpine, 1, 1-alpine, latest, latest-alpine
+* 1.6.0, 1.6.0-alpine, 1.6, 1.6-alpine
 * 1.5.0, 1.5.0-alpine, 1.5, 1.5-alpine
 * 1.4.0, 1.4.0-alpine, 1.4, 1.4-alpine
 * 1.3.0, 1.3.0-alpine, 1.3, 1.3-alpine
