@@ -9,13 +9,9 @@ Sqlcmd – [Modern command line tool written in Go for Microsoft SQL Server](htt
 
 ## Available tags
 
-* 1.7.0, 1.7.0-alpine, 1.7, 1.7-alpine, 1, 1-alpine, latest, latest-alpine
-* 1.6.0, 1.6.0-alpine, 1.6, 1.6-alpine
-* 1.5.0, 1.5.0-alpine, 1.5, 1.5-alpine
-* 1.4.0, 1.4.0-alpine, 1.4, 1.4-alpine
-* 1.3.0, 1.3.0-alpine, 1.3, 1.3-alpine
-* 1.2.0, 1.2.0-alpine, 1.2, 1.2-alpine
-* 1.1.1, 1.1.1-alpine, 1.1, 1.1-alpine
+* 1.x.0, 1.x.0-alpine, 1.x, 1.x-alpine, 1, 1-alpine, latest, latest-alpine
+
+See [Docker Hub page](https://hub.docker.com/r/fabiang/go-sqlcmd/tags?page=&page_size=&ordering=name&name=) for all available tags.
 
 ## License
 
