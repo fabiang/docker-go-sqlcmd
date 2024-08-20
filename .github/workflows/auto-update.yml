@@ -19,14 +19,14 @@ jobs:
       - name: checkout
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.WORKFLOW_TOKEN }}
 
       - uses: octokit/request-action@v2.x
         id: gosqlcmd_latest_release
         with:
           route: GET /repos/microsoft/go-sqlcmd/releases/latest
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
 
       - name: "Get OUR lastest version for Alpine"
         id: get_alpine_latest_version
