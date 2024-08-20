@@ -1,0 +1,112 @@
+name: Auto Update
+
+on:
+  schedule:
+    - cron: "0 7 * * *"
+
+jobs:
+  auto-update:
+    name: "Auto-Update SQLCMD Docker Image"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    env:
+      JSONPATH_ALPINE: .jobs.docker-image-alpine.strategy.matrix.version
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+
+      - uses: octokit/request-action@v2.x
+        id: gosqlcmd_latest_release
+        with:
+          route: GET /repos/microsoft/go-sqlcmd/releases/latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+
+      - name: "Get OUR lastest version for Alpine"
+        id: get_alpine_latest_version
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '${{ env.JSONPATH_ALPINE }}.[-1].version' '.github/workflows/docker.yml'
+
+      - run: |
+          echo "GOSQLCMD_LATEST=$(echo '${{ fromJson(steps.gosqlcmd_latest_release.outputs.data).tag_name }}' | cut -c 2- )" >> $GITHUB_ENV
+          echo "GOSQLCMD_VERSION_MAJOR=$(echo '${{ fromJson(steps.gosqlcmd_latest_release.outputs.data).tag_name }}' | cut -d '.' -f1 | cut -c 2- )" >> $GITHUB_ENV
+          echo "GOSQLCMD_VERSION_MINOR=$(echo '${{ fromJson(steps.gosqlcmd_latest_release.outputs.data).tag_name }}' | cut -d '.' -f1-2 | cut -c 2- )" >> $GITHUB_ENV
+          echo "GOSQLCMD_VERSION_ALPINE=${{ steps.get_alpine_latest_version.outputs.result }}" >> $GITHUB_ENV
+
+      - name: Download TARBALL
+        if: ${{ env.GOSQLCMD_LATEST != env.GOSQLCMD_VERSION_ALPINE }}
+        run: |
+          curl -v -L '${{ fromJson(steps.gosqlcmd_latest_release.outputs.data).tarball_url }}' -o 'gosqlcmd.tar'
+          echo "GOSQLCMD_TARBALL_HASH=$( sha256sum gosqlcmd.tar | cut -d ' ' -f1 )" >> $GITHUB_ENV
+
+      - name: Download ZIPBALL
+        if: ${{ env.GOSQLCMD_LATEST != env.GOSQLCMD_VERSION_ALPINE }}
+        run: |
+          curl -v -L '${{ fromJson(steps.gosqlcmd_latest_release.outputs.data).zipball_url }}' -o 'gosqlcmd.zip'
+          echo "GOSQLCMD_ZIPBALL_HASH=$( sha256sum gosqlcmd.zip | cut -d ' ' -f1 )" >> $GITHUB_ENV
+
+      - run: |
+          echo Latest Version: $GOSQLCMD_LATEST
+          echo Major version: $GOSQLCMD_VERSION_MAJOR
+          echo Minor version: $GOSQLCMD_VERSION_MINOR
+          echo Our Alpine Version: $GOSQLCMD_VERSION_ALPINE
+          echo Download hash tarball: $GOSQLCMD_TARBALL_HASH
+          echo Download hash zipball: $GOSQLCMD_ZIPBALL_HASH
+
+      - name: Handle version < 1
+        if: ${{ env.GOSQLCMD_VERSION_MAJOR == '0' }}
+        run: |
+          echo GOSQLCMD_VERSION_MAJOR="" >> $GITHUB_ENV
+          echo GOSQLCMD_VERSION_MINOR="" >> $GITHUB_ENV
+
+      - name: Fix Major versions Alpine
+        if: ${{ env.GOSQLCMD_LATEST != env.GOSQLCMD_VERSION_ALPINE }}
+        uses: mikefarah/yq@master
+        with:
+          cmd: |
+            yq -i 'with((${{ env.JSONPATH_ALPINE }}[] | select(.sqlcmd_major == "${{ env.GOSQLCMD_VERSION_MAJOR }}")); .sqlcmd_major = "")' .github/workflows/docker.yml
+
+      - name: Fix Minor versions Alpine
+        if: ${{ env.GOSQLCMD_LATEST != env.GOSQLCMD_VERSION_ALPINE }}
+        uses: mikefarah/yq@master
+        with:
+          cmd: |
+            yq -i 'with((${{ env.JSONPATH_ALPINE }}[] | select(.sqlcmd_minor == "${{ env.GOSQLCMD_VERSION_MINOR }}")); .sqlcmd_minor = "")' .github/workflows/docker.yml
+
+      - name: Fix Latest Alpine
+        if: ${{ env.GOSQLCMD_LATEST != env.GOSQLCMD_VERSION_ALPINE }}
+        uses: mikefarah/yq@master
+        with:
+          cmd: |
+            yq -i 'with((${{ env.JSONPATH_ALPINE }}[] | select(.latest == true)); .latest = false)' .github/workflows/docker.yml
+
+      - name: "Add new Version for Alpine"
+        if: ${{ env.GOSQLCMD_LATEST != env.GOSQLCMD_VERSION_ALPINE }}
+        uses: mikefarah/yq@master
+        with:
+          cmd: |
+            yq -i '${{ env.JSONPATH_ALPINE }} = ${{ env.JSONPATH_ALPINE }} + {"sqlcmd": "${{ env.GOSQLCMD_LATEST }}", "sqlcmd_major": "${{ env.GOSQLCMD_VERSION_MAJOR }}", "sqlcmd_minor": "${{ env.GOSQLCMD_VERSION_MINOR }}", "sha256": "${{ env.GOSQLCMD_TARBALL_HASH }}", "latest": true}' .github/workflows/docker.yml
+
+      - name: Create Pull Request
+        if: ${{ env.GOSQLCMD_LATEST != env.GOSQLCMD_VERSION_ALPINE || env.GOSQLCMD_LATEST != env.GOSQLCMD_VERSION_WINDOWS }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          git switch -c "update-${{ env.GOSQLCMD_LATEST }}"
+
+          git config --global user.name "github-actions"
+          git config --global user.email \
+              "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add .github/workflows/docker.yml
+          git commit --message "Version ${{ env.GOSQLCMD_LATEST }}"
+
+          git push --set-upstream origin "update-${{ env.GOSQLCMD_LATEST }}"
+
+          gh pr create --title "Version ${{ env.GOSQLCMD_LATEST }}" --body ''
