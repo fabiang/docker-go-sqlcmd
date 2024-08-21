@@ -1,5 +1,4 @@
 name: Docker Image
-
 on:
   push:
     paths-ignore:
@@ -8,7 +7,6 @@ on:
   pull_request:
   schedule:
     - cron: "0 12 1-7 * 2"
-
 jobs:
   docker-image-alpine:
     strategy:
@@ -51,10 +49,14 @@ jobs:
             latest: false
           - sqlcmd: "1.7.0"
             sqlcmd_minor: "1.7"
-            sqlcmd_major: "1"
+            sqlcmd_major: ""
             sha256: "a9bf7a99a9e22bf0e59bf282e011f9213455438869c9e1847a1c23a75cda0517"
+            latest: false
+          - sqlcmd: 1.8.0
+            sqlcmd_major: "1"
+            sqlcmd_minor: "1.8"
+            sha256: 97026215948999c107ee3a1d1f109fbf77a733e39aebb4b17219d47e73e7fac4
             latest: true
-
     env:
       IMAGE_NAME_FULL: "fabiang/go-sqlcmd:${{ matrix.version.sqlcmd }}"
       IMAGE_NAME_MINOR: "fabiang/go-sqlcmd:${{ matrix.version.sqlcmd_minor }}"
@@ -66,31 +68,24 @@ jobs:
       IMAGE_LATEST_ALPINE: "fabiang/go-sqlcmd:alpine-latest"
       IMAGE_LATEST_ALPINE_MINOR: "fabiang/go-sqlcmd:${{ matrix.version.sqlcmd_minor }}-alpine"
       IMAGE_LATEST_ALPINE_MAJOR: "fabiang/go-sqlcmd:${{ matrix.version.sqlcmd_major }}-alpine"
-
     runs-on: ubuntu-latest
-
     name: "Sqlcmd v${{ matrix.version.sqlcmd }}"
-
     steps:
       - uses: actions/checkout@v3
-
       - name: SQLServer Checksum
         id: sqlserver-checksum
         shell: bash
         run: |
           echo "checksum=$(curl --silent -L --header 'Accept: application/vnd.docker.distribution.manifest.v2+json' 'https://mcr.microsoft.com/v2/mssql/server/manifests/2022-latest' | jq -r '.config.digest')" >> $GITHUB_OUTPUT
-
       - name: Cache Docker Image
         id: docker-image-cache
         uses: actions/cache@v3
         with:
           path: '*.tar'
           key: docker-image-cache-${{ runner.os }}-${{ steps.sqlserver-checksum.outputs.checksum }}
-
       - name: Load SQLServer image
         if: steps.docker-image-cache.outputs.cache-hit == 'true'
         run: docker image load -i sqlserver.tar
-
       - name: Run SQL Server
         run: |
           docker run \
@@ -102,10 +97,8 @@ jobs:
             --name SQLServer \
             --rm \
             mcr.microsoft.com/mssql/server:2022-latest
-
       - uses: satackey/action-docker-layer-caching@v0.0.11
         continue-on-error: true
-
       - name: Build Image
         run: |
           docker build -f alpine/Dockerfile \
@@ -114,7 +107,6 @@ jobs:
             '--build-arg=GO_SQLCMD_VERSION=${{ matrix.version.sqlcmd }}' \
             '--build-arg=GO_SQLCMD_SHA256=${{ matrix.version.sha256 }}' \
             .
-
       - name: Wait for SQLServer to become available
         uses: iFaxity/wait-on-action@v1.1.0
         with:
@@ -122,7 +114,6 @@ jobs:
           timeout: 1800000
           interval: 5000
           log: true
-
       - name: Test image
         run: |
           docker run -t --rm --entrypoint='' --network=host \
@@ -131,62 +122,52 @@ jobs:
             sqlcmd -b -C -S 127.0.0.1,1433 -U sa -Q 'SELECT @@VERSION'
         env:
           SQLCMDPASSWORD: "yourStrong(!)Password"
-
       - name: Stop SQLServer
         if: always()
         run: docker stop SQLServer
-
       - name: Save SQLServer image
         if: steps.docker-image-cache.outputs.cache-hit != 'true'
         run: docker image save -o sqlserver.tar mcr.microsoft.com/mssql/server:2022-latest
-
       - name: Tag Minor
         if: "${{ matrix.version.sqlcmd_minor != '' }}"
         run: |
           docker tag '${{ env.IMAGE_NAME_FULL }}' '${{ env.IMAGE_NAME_MINOR }}'
           docker tag '${{ env.IMAGE_NAME_FULL }}' '${{ env.IMAGE_NAME_ALPINE_MINOR }}'
           docker tag '${{ env.IMAGE_NAME_FULL }}' '${{ env.IMAGE_LATEST_ALPINE_MINOR }}'
-
       - name: Tag Major
         if: "${{ matrix.version.sqlcmd_major != '' }}"
         run: |
           docker tag '${{ env.IMAGE_NAME_FULL }}' '${{ env.IMAGE_NAME_MAJOR }}'
           docker tag '${{ env.IMAGE_NAME_FULL }}' '${{ env.IMAGE_NAME_ALPINE_MAJOR }}'
           docker tag '${{ env.IMAGE_NAME_FULL }}' '${{ env.IMAGE_LATEST_ALPINE_MAJOR }}'
-
       - name: Tag Latest
         if: "${{ matrix.version.latest == true }}"
         run: |
           docker tag '${{ env.IMAGE_NAME_FULL }}' '${{ env.IMAGE_LATEST }}'
           docker tag '${{ env.IMAGE_NAME_FULL }}' '${{ env.IMAGE_LATEST_ALPINE }}'
-
       - name: Docker Hub login
         if: "${{ github.ref == 'refs/heads/main' }}"
         uses: azure/docker-login@v1
         with:
           username: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
           password: ${{ secrets.CONTAINER_REGISTRY_PASSWORD }}
-
       - name: Push Image
         if: "${{ github.ref == 'refs/heads/main' }}"
         run: |
           docker push '${{ env.IMAGE_NAME_FULL }}'
           docker push '${{ env.IMAGE_NAME_ALPINE_FULL }}'
-
       - name: Push Image Minor
         if: "${{ matrix.version.sqlcmd_minor != '' && github.ref == 'refs/heads/main' }}"
         run: |
           docker push '${{ env.IMAGE_NAME_MINOR }}'
           docker push '${{ env.IMAGE_NAME_ALPINE_MINOR }}'
           docker push '${{ env.IMAGE_LATEST_ALPINE_MINOR }}'
-
       - name: Push Image Major
         if: "${{ matrix.version.sqlcmd_major != '' && github.ref == 'refs/heads/main' }}"
         run: |
           docker push '${{ env.IMAGE_NAME_MAJOR }}'
           docker push '${{ env.IMAGE_NAME_ALPINE_MAJOR }}'
           docker push '${{ env.IMAGE_LATEST_ALPINE_MAJOR }}'
-
       - name: Push Latest
         if: "${{ matrix.version.latest == true && github.ref == 'refs/heads/main' }}"
         run: |
