@@ -72,7 +72,7 @@ jobs:
     name: "Sqlcmd v${{ matrix.version.sqlcmd }}"
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: SQLServer Checksum
         id: sqlserver-checksum
@@ -116,7 +116,7 @@ jobs:
             .
 
       - name: Wait for SQLServer to become available
-        uses: iFaxity/wait-on-action@v1.1.0
+        uses: iFaxity/wait-on-action@v1
         with:
           resource: tcp:localhost:1433
           timeout: 1800000
@@ -162,7 +162,7 @@ jobs:
 
       - name: Docker Hub login
         if: "${{ github.ref == 'refs/heads/main' }}"
-        uses: azure/docker-login@v1
+        uses: azure/docker-login@v2
         with:
           username: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
           password: ${{ secrets.CONTAINER_REGISTRY_PASSWORD }}
