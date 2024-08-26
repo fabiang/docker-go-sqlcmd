@@ -31,7 +31,7 @@ jobs:
         id: get_alpine_latest_version
         uses: mikefarah/yq@master
         with:
-          cmd: yq '${{ env.JSONPATH_ALPINE }}.[-1].version' '.github/workflows/docker.yml'
+          cmd: yq '${{ env.JSONPATH_ALPINE }}.[-1].sqlcmd' '.github/workflows/docker.yml'
 
       - run: |
           echo "GOSQLCMD_LATEST=$(echo '${{ fromJson(steps.gosqlcmd_latest_release.outputs.data).tag_name }}' | cut -c 2- )" >> $GITHUB_ENV
