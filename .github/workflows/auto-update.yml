@@ -94,7 +94,7 @@ jobs:
             yq -i '${{ env.JSONPATH_ALPINE }} = ${{ env.JSONPATH_ALPINE }} + {"sqlcmd": "${{ env.GOSQLCMD_LATEST }}", "sqlcmd_major": "${{ env.GOSQLCMD_VERSION_MAJOR }}", "sqlcmd_minor": "${{ env.GOSQLCMD_VERSION_MINOR }}", "sha256": "${{ env.GOSQLCMD_TARBALL_HASH }}", "latest": true}' .github/workflows/docker.yml
 
       - name: Create Pull Request
-        if: ${{ env.GOSQLCMD_LATEST != env.GOSQLCMD_VERSION_ALPINE || env.GOSQLCMD_LATEST != env.GOSQLCMD_VERSION_WINDOWS }}
+        if: ${{ env.GOSQLCMD_LATEST != env.GOSQLCMD_VERSION_ALPINE }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
