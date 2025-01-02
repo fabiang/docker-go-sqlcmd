@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-ARG GOLANG_VERSION=1.20
+ARG GOLANG_VERSION=1.23
 FROM golang:$GOLANG_VERSION-alpine AS build
 
 ARG GO_SQLCMD_VERSION=1.3.0
