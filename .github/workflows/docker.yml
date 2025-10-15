@@ -70,7 +70,7 @@ jobs:
       IMAGE_NAME_ALPINE_MINOR: "fabiang/go-sqlcmd:${{ matrix.version.sqlcmd_minor }}-alpine${{ matrix.version.alpine }}"
       IMAGE_NAME_ALPINE_MAJOR: "fabiang/go-sqlcmd:${{ matrix.version.sqlcmd_major }}-alpine${{ matrix.version.alpine }}"
       IMAGE_LATEST: "fabiang/go-sqlcmd:latest"
-      IMAGE_LATEST_ALPINE: "fabiang/go-sqlcmd:alpine-latest"
+      IMAGE_LATEST_ALPINE: "fabiang/go-sqlcmd:latest-alpine"
       IMAGE_LATEST_ALPINE_MINOR: "fabiang/go-sqlcmd:${{ matrix.version.sqlcmd_minor }}-alpine"
       IMAGE_LATEST_ALPINE_MAJOR: "fabiang/go-sqlcmd:${{ matrix.version.sqlcmd_major }}-alpine"
     runs-on: ubuntu-latest
