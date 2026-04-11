@@ -63,9 +63,14 @@ jobs:
             sha256: 4e97bf4ea6b00a43469156bde3ee91a622deed543b02b9b5dae3fa5565f6fea5
             latest: false
           - sqlcmd: 1.9.0
-            sqlcmd_major: "1"
+            sqlcmd_major: ""
             sqlcmd_minor: "1.9"
             sha256: 7962f9f8ea434727e4021373ffe9d6e44dfd8dd3c2391554cc9ae344938ef146
+            latest: false
+          - sqlcmd: 1.10.0
+            sqlcmd_major: "1"
+            sqlcmd_minor: "1.10"
+            sha256: 5de109419d447f64c0c0dbb2591c07180323c6a2e5ffa381d054b59b5fbe9ad5
             latest: true
     env:
       IMAGE_NAME_FULL: "fabiang/go-sqlcmd:${{ matrix.version.sqlcmd }}"
